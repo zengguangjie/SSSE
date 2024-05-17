@@ -89,7 +89,7 @@ def generate_constraints_pairwise_fast(y, N_ML, N_CL, X, args, weight_knn):
         if y[i] != y[j]:
             cls.append([i,j])
 
-    if n_instance <= 2.5 * args.target_size:
+    if n_instance <= 2.5 * args.sampling_size:
         cls = np.array(cls, dtype=int).reshape((-1, 2))
         mls = np.array(mls, dtype=int).reshape((-1, 2))
         ml_graph, cl_graph = transitive_closure(mls, cls, n_instance)
@@ -181,7 +181,7 @@ def generate_constraints_label_fast(y, N_PL, N_NL, X_fea, args, weight_knn):
     mls = []
     cls = []
 
-    if n_instance <= 2.5 * args.target_size:
+    if n_instance <= 2.5 * args.sampling_size:
         for i in range(k):
             indices_pos = np.argwhere(PL[:, i] >= 0.99).flatten()
             ml_same_pos = list(itertools.combinations(indices_pos, 2))

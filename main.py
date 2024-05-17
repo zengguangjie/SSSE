@@ -323,8 +323,8 @@ def SSSE_pairwise_clustering_bio(path):
     n_instance = y.shape[0]
     n_cluster = np.unique(y).shape[0]
     n_instance_actual = n_instance
-    if n_instance > args.target_size * 2.5:
-        n_instance_actual = args.target_size
+    if n_instance > args.sampling_size * 2.5:
+        n_instance_actual = args.sampling_size
     args.knn_k = knn_k_estimating(n_cluster=n_cluster, n_instance=n_instance_actual, knn_constant=args.knn_constant)
     ARIs = []
     NMIs = []
@@ -340,7 +340,7 @@ def SSSE_pairwise_clustering_bio(path):
             graph_con = generate_constraints_pairwise_fast(y, args.constraint_ratio * n_instance, args.constraint_ratio * n_instance, X, args, weight_knn)
         else:
             graph_con = Graph(n_instance)
-        flatSSSE = FlatSSSE(graph, graph_con, n_cluster, args.target_size, args)
+        flatSSSE = FlatSSSE(graph, graph_con, n_cluster, args.sampling_size, args)
         y_pred = flatSSSE.run_parallel()
         time2 = time.time()
         ARI = adjusted_rand_score(y, y_pred)
@@ -354,6 +354,8 @@ def SSSE_pairwise_clustering_bio(path):
 def SSSE_label_clustering_bio(path):
     args.metric = 'cosine'
     args.normalization = "MinMaxScaler"
+    if args.dataset == 'Karagiannis':
+        args.normalization = "StandardScaler"
     data = scipy.io.loadmat(path)
     X = np.array(data['fea']).astype(float)
     y = np.array(data['gnd']).astype(float).squeeze()
@@ -366,10 +368,9 @@ def SSSE_label_clustering_bio(path):
     n_instance = y.shape[0]
     n_cluster = np.unique(y).shape[0]
     n_instance_actual = n_instance
-    if n_instance > args.target_size * 2.5:
-        n_instance_actual = args.target_size
+    if n_instance > args.sampling_size * 2.5:
+        n_instance_actual = args.sampling_size
     args.knn_k = knn_k_estimating(n_cluster=n_cluster, n_instance=n_instance_actual, knn_constant=args.knn_constant)
-    print(args.knn_k)
     ARIs = []
     NMIs = []
     times = []
@@ -384,7 +385,7 @@ def SSSE_label_clustering_bio(path):
             graph_con = generate_constraints_label_fast(y, args.constraint_ratio * n_instance, args.constraint_ratio * n_instance, X, args, weight_knn)
         else:
             graph_con = Graph(n_instance)
-        flatSSSE = FlatSSSE(graph, graph_con, n_cluster, args.target_size, args)
+        flatSSSE = FlatSSSE(graph, graph_con, n_cluster, args.sampling_size, args)
         y_pred = flatSSSE.run_parallel()
         time2 = time.time()
         ARI = adjusted_rand_score(y, y_pred)
@@ -398,6 +399,8 @@ def SSSE_label_clustering_bio(path):
 def SE_partitioning_clustering_scalable_bio(path):
     args.metric = 'cosine'
     args.normalization = "MinMaxScaler"
+    if args.dataset == 'Karagiannis':
+        args.normalization = "StandardScaler"
     data = scipy.io.loadmat(path)
     X = np.array(data['fea']).astype(float)
     y = np.array(data['gnd']).astype(float).squeeze()
@@ -410,8 +413,8 @@ def SE_partitioning_clustering_scalable_bio(path):
     n_instance = y.shape[0]
     n_cluster = np.unique(y).shape[0]
     n_instance_actual = n_instance
-    if n_instance > args.target_size * 2.5:
-        n_instance_actual = args.target_size
+    if n_instance > args.sampling_size * 2.5:
+        n_instance_actual = args.sampling_size
     args.knn_k = knn_k_estimating(n_cluster=n_cluster, n_instance=n_instance_actual, knn_constant=args.knn_constant)
     ARIs = []
     NMIs = []
@@ -424,7 +427,7 @@ def SE_partitioning_clustering_scalable_bio(path):
         weight_knn = 1 - dist_knn
         graph = graph_from_knn(ind_knn, weight_knn)
         graph_con = Graph(n_instance)
-        flatSSSE = FlatSSSE(graph, graph_con, n_cluster, args.target_size, args)
+        flatSSSE = FlatSSSE(graph, graph_con, n_cluster, args.sampling_size, args)
         y_pred = flatSSSE.run_parallel()
         print(np.unique(y_pred).shape[0])
         time2 = time.time()
@@ -441,16 +444,16 @@ if __name__=='__main__':
     if args.method == "SSSE_partitioning_pairwise":
         path = "./datasets/clustering/{}.mat".format(args.dataset)
         SSSE_pairwise_clustering(path)
-    elif args.method == "SSE_partitioning_label":
+    elif args.method == "SSSE_partitioning_label":
         path = "./datasets/clustering/{}.mat".format(args.dataset)
         SSSE_label_clustering(path)
-    elif args.method == "SSE_hierarchical":
+    elif args.method == "SSSE_hierarchical":
         path = "./datasets/clustering/{}.mat".format(args.dataset)
         SSSE_hierar_clustering(path)
-    elif args.method == "SSE_partitioning_bio_pairwise":
+    elif args.method == "SSSE_partitioning_bio_pairwise":
         path = "./datasets/RNA-seq/{}.mat".format(args.dataset)
         SSSE_pairwise_clustering_bio(path)
-    elif args.method == "SSE_partitioning_bio_label":
+    elif args.method == "SSSE_partitioning_bio_label":
         path = "./datasets/RNA-seq/{}.mat".format(args.dataset)
         SSSE_label_clustering_bio(path)
 
